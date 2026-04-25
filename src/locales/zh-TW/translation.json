@@ -1,5 +1,4 @@
 {
-	"nezha": "哪吒監控",
 	"overview": "概覽",
 	"dashboard": "管理後台",
 	"login": "登錄",
@@ -140,5 +139,6 @@
 		"offlineReady": "可離線使用之應用程式",
 		"newContent": "有新内容可用",
 		"reload": "更新"
-	}
+	},
+	"appName": "監控"
 }

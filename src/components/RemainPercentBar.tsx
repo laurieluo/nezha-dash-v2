@@ -16,10 +16,10 @@ export default function RemainPercentBar({
 			value={value}
 			indicatorClassName={
 				value < 30
-					? "bg-red-500"
+					? "bg-status-offline"
 					: value < 70
-						? "bg-orange-400"
-						: "bg-green-500"
+						? "bg-status-warning"
+						: "bg-status-online"
 			}
 			className={cn("h-[3px] rounded-sm w-[70px]", className)}
 		/>

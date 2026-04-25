@@ -11,9 +11,11 @@ import MapTooltip from "./MapTooltip";
 export default function GlobalMap({
 	serverList,
 	now,
+	compact = false,
 }: {
 	serverList: NezhaServer[];
 	now: number;
+	compact?: boolean;
 }) {
 	const { t } = useTranslation();
 	const countryList: string[] = [];
@@ -34,8 +36,8 @@ export default function GlobalMap({
 		}
 	});
 
-	const width = 900;
-	const height = 500;
+	const width = compact ? 720 : 900;
+	const height = compact ? 260 : 500;
 
 	const geoJson = JSON.parse(geoJsonString);
 	const filteredFeatures = geoJson.features.filter(
@@ -45,14 +47,18 @@ export default function GlobalMap({
 
 	return (
 		<section
-			className={cn("flex flex-col gap-4 mt-8", {
-				"bg-card/70 rounded-lg  p-4": customBackgroundImage,
-			})}
+			className={cn(
+				"flex flex-col gap-2 mt-6",
+				compact && "mx-auto max-w-2xl opacity-85",
+				{
+					"bg-card/70 rounded-lg p-4": customBackgroundImage,
+				},
+			)}
 		>
-			<p className="text-sm font-medium opacity-40">
+			<p className="text-center text-xs font-medium text-muted-foreground opacity-60">
 				{t("map.Distributions")} {countryList.length} {t("map.Regions")}
 			</p>
-			<div className="w-full overflow-x-auto">
+			<div className="w-full overflow-visible">
 				<InteractiveMap
 					countries={countryList}
 					serverCounts={serverCounts}
@@ -96,7 +102,7 @@ export function InteractiveMap({
 	const { setTooltipData } = useTooltip();
 
 	const projection = geoEquirectangular()
-		.scale(140)
+		.scale(width * (height < 320 ? 0.13 : 0.155))
 		.translate([width / 2, height / 2])
 		.rotate([-12, 0, 0]);
 
@@ -104,7 +110,8 @@ export function InteractiveMap({
 
 	return (
 		<div
-			className="relative w-full aspect-2/1"
+			className="relative w-full"
+			style={{ aspectRatio: `${width} / ${height}` }}
 			onMouseLeave={() => setTooltipData(null)}
 		>
 			<svg
@@ -142,8 +149,8 @@ export function InteractiveMap({
 								d={path(feature) || ""}
 								className={
 									isHighlighted
-										? "fill-green-700 hover:fill-green-600    dark:fill-green-900 dark:hover:fill-green-700 transition-all cursor-pointer"
-										: "fill-neutral-200/50 dark:fill-neutral-800 stroke-neutral-300/40 dark:stroke-neutral-700 stroke-[0.5]"
+										? "fill-status-online/45 hover:fill-status-online/65 transition-all cursor-pointer stroke-status-online/20 stroke-[0.35]"
+										: "fill-secondary/25 stroke-border/25 stroke-[0.35]"
 								}
 								onMouseEnter={() => {
 									if (!isHighlighted) {
@@ -164,6 +171,7 @@ export function InteractiveMap({
 											}));
 										setTooltipData({
 											centroid: path.centroid(feature),
+											mapSize: { width, height },
 											country: feature.properties.name,
 											count: serverCount,
 											servers: countryServers,
@@ -209,6 +217,7 @@ export function InteractiveMap({
 										}));
 									setTooltipData({
 										centroid: [x, y],
+										mapSize: { width, height },
 										country: coords.name,
 										count: serverCount,
 										servers: countryServers,
@@ -219,8 +228,8 @@ export function InteractiveMap({
 								<circle
 									cx={x}
 									cy={y}
-									r={4}
-									className="fill-sky-700 stroke-white hover:fill-sky-600 dark:fill-sky-900 dark:hover:fill-sky-700 transition-all"
+									r={3}
+									className="fill-status-online/70 stroke-card/70 stroke-[1.5] transition-all hover:fill-status-online"
 								/>
 							</g>
 						);

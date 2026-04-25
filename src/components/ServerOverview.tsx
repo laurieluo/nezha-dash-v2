@@ -30,12 +30,6 @@ export default function ServerOverview({
 	const { t } = useTranslation();
 	const { status, setStatus } = useStatus();
 
-	// @ts-expect-error DisableAnimatedMan is a global variable
-	const disableAnimatedMan = window.DisableAnimatedMan as boolean;
-
-	// @ts-expect-error CustomIllustration is a global variable
-	const customIllustration = window.CustomIllustration || "/animated-man.webp";
-
 	const customBackgroundImage =
 		(window.CustomBackgroundImage as string) !== ""
 			? window.CustomBackgroundImage
@@ -47,20 +41,20 @@ export default function ServerOverview({
 				onClick={() => {
 					setStatus("all");
 				}}
-				className={cn("hover:border-blue-500 cursor-pointer transition-all", {
+				className={cn("cursor-pointer transition-all hover:border-primary", {
 					"bg-card/70": customBackgroundImage,
 				})}
 			>
 				<CardContent className="flex h-full items-center px-6 py-3">
 					<section className="flex flex-col gap-1">
-						<p className="text-sm font-medium md:text-base">
+						<p className="font-serif text-[1.05rem] font-medium leading-tight tracking-normal">
 							{t("serverOverview.totalServers")}
 						</p>
 						<div className="flex items-center gap-2">
 							<span className="relative flex h-2 w-2">
-								<span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
+								<span className="relative inline-flex h-2 w-2 rounded-full bg-status-info"></span>
 							</span>
-							<div className="text-lg font-semibold">{total}</div>
+							<div className="text-lg font-medium tabular-nums">{total}</div>
 						</div>
 					</section>
 				</CardContent>
@@ -70,27 +64,27 @@ export default function ServerOverview({
 					setStatus("online");
 				}}
 				className={cn(
-					"cursor-pointer hover:ring-green-500 ring-1 ring-transparent transition-all",
+					"cursor-pointer ring-1 ring-transparent transition-all hover:ring-status-online",
 					{
 						"bg-card/70": customBackgroundImage,
 					},
 					{
-						"ring-green-500 ring-2 border-transparent": status === "online",
+						"ring-status-online ring-2 border-transparent": status === "online",
 					},
 				)}
 			>
 				<CardContent className="flex h-full items-center px-6 py-3">
 					<section className="flex flex-col gap-1">
-						<p className="text-sm font-medium md:text-base">
+						<p className="font-serif text-[1.05rem] font-medium leading-tight tracking-normal">
 							{t("serverOverview.onlineServers")}
 						</p>
 						<div className="flex items-center gap-2">
 							<span className="relative flex h-2 w-2">
-								<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
-								<span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+								<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-status-online opacity-75"></span>
+								<span className="relative inline-flex h-2 w-2 rounded-full bg-status-online"></span>
 							</span>
 
-							<div className="text-lg font-semibold">{online}</div>
+							<div className="text-lg font-medium tabular-nums">{online}</div>
 						</div>
 					</section>
 				</CardContent>
@@ -100,33 +94,34 @@ export default function ServerOverview({
 					setStatus("offline");
 				}}
 				className={cn(
-					"cursor-pointer hover:ring-red-500 ring-1 ring-transparent transition-all",
+					"cursor-pointer ring-1 ring-transparent transition-all hover:ring-status-offline",
 					{
 						"bg-card/70": customBackgroundImage,
 					},
 					{
-						"ring-red-500 ring-2 border-transparent": status === "offline",
+						"ring-status-offline ring-2 border-transparent":
+							status === "offline",
 					},
 				)}
 			>
 				<CardContent className="flex h-full items-center px-6 py-3">
 					<section className="flex flex-col gap-1">
-						<p className="text-sm font-medium md:text-base">
+						<p className="font-serif text-[1.05rem] font-medium leading-tight tracking-normal">
 							{t("serverOverview.offlineServers")}
 						</p>
 						<div className="flex items-center gap-2">
 							<span className="relative flex h-2 w-2">
-								<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75"></span>
-								<span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+								<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-status-offline opacity-75"></span>
+								<span className="relative inline-flex h-2 w-2 rounded-full bg-status-offline"></span>
 							</span>
-							<div className="text-lg font-semibold">{offline}</div>
+							<div className="text-lg font-medium tabular-nums">{offline}</div>
 						</div>
 					</section>
 				</CardContent>
 			</Card>
 			<Card
 				className={cn(
-					"hover:ring-purple-500 ring-1 ring-transparent transition-all",
+					"ring-1 ring-transparent transition-all hover:ring-primary",
 					{
 						"bg-card/70": customBackgroundImage,
 					},
@@ -135,37 +130,29 @@ export default function ServerOverview({
 				<CardContent className="flex h-full items-center relative px-6 py-3">
 					<section className="flex flex-col gap-1 w-full">
 						<div className="flex items-center w-full justify-between">
-							<p className="text-sm font-medium md:text-base">
+							<p className="font-serif text-[1.05rem] font-medium leading-tight tracking-normal">
 								{t("serverOverview.network")}
 							</p>
 						</div>
 						<section className="flex items-start flex-row z-10 pr-0 gap-1">
-							<p className="sm:text-[12px] text-[10px] text-blue-800 dark:text-blue-400   text-nowrap font-medium">
+							<p className="sm:text-[12px] text-[10px] text-metric-upload text-nowrap font-medium">
 								↑{formatBytes(up)}
 							</p>
-							<p className="sm:text-[12px] text-[10px]  text-purple-800 dark:text-purple-400  text-nowrap font-medium">
+							<p className="sm:text-[12px] text-[10px] text-metric-download text-nowrap font-medium">
 								↓{formatBytes(down)}
 							</p>
 						</section>
 						<section className="flex flex-col sm:flex-row -mr-1 sm:items-center items-start gap-1">
-							<p className="text-[11px] flex items-center text-nowrap font-semibold">
+							<p className="text-[11px] flex items-center text-nowrap font-medium tabular-nums">
 								<ArrowUpCircleIcon className="size-3 mr-0.5 sm:mb-px" />
 								{formatBytes(upSpeed)}/s
 							</p>
-							<p className="text-[11px] flex items-center  text-nowrap font-semibold">
+							<p className="text-[11px] flex items-center  text-nowrap font-medium tabular-nums">
 								<ArrowDownCircleIcon className="size-3 mr-0.5" />
 								{formatBytes(downSpeed)}/s
 							</p>
 						</section>
 					</section>
-					{!disableAnimatedMan && (
-						<img
-							className="absolute right-3 top-[-85px] z-50 w-20 scale-90 group-hover:opacity-50 md:scale-100 transition-all"
-							alt={"animated-man"}
-							src={customIllustration}
-							loading="eager"
-						/>
-					)}
 				</CardContent>
 			</Card>
 		</section>

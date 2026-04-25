@@ -2,6 +2,10 @@ import { createContext } from "react";
 
 export interface TooltipData {
 	centroid: [number, number];
+	mapSize: {
+		width: number;
+		height: number;
+	};
 	country: string;
 	count: number;
 	servers: Array<{

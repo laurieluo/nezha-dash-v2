@@ -42,8 +42,8 @@ export function LanguageSwitcher() {
 				<Button
 					variant="outline"
 					size="sm"
-					className={cn("rounded-full px-[9px] bg-white dark:bg-black", {
-						"bg-white/70 dark:bg-black/70": customBackgroundImage,
+					className={cn("rounded-full bg-card px-[9px]", {
+						"bg-card/70": customBackgroundImage,
 					})}
 				>
 					<LanguageIcon className="size-4" />

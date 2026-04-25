@@ -14,8 +14,10 @@ import { TooltipProvider } from "./context/tooltip-provider";
 import { WebSocketProvider } from "./context/websocket-provider";
 import "./i18n";
 import "./index.css";
+import { initMockModeFromUrl } from "./lib/mock-data";
 
 const queryClient = new QueryClient();
+initMockModeFromUrl();
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

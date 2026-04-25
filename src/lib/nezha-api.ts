@@ -8,10 +8,21 @@ import type {
 	ServiceResponse,
 	SettingResponse,
 } from "@/types/nezha-api";
+import {
+	getMockLoginUser,
+	getMockMonitor,
+	getMockServerGroup,
+	getMockServerMetrics,
+	getMockService,
+	getMockSetting,
+	isMockMode,
+} from "./mock-data";
 
 let lastestRefreshTokenAt = 0;
 
 export const fetchServerGroup = async (): Promise<ServerGroupResponse> => {
+	if (isMockMode()) return getMockServerGroup();
+
 	const response = await fetch("/api/v1/server-group");
 	const data = await response.json();
 	if (data.error) {
@@ -21,6 +32,8 @@ export const fetchServerGroup = async (): Promise<ServerGroupResponse> => {
 };
 
 export const fetchLoginUser = async (): Promise<LoginUserResponse> => {
+	if (isMockMode()) return getMockLoginUser();
+
 	const response = await fetch("/api/v1/profile");
 	const data = await response.json();
 	if (data.error) {
@@ -46,6 +59,8 @@ export const fetchMonitor = async (
 	server_id: number,
 	period?: MonitorPeriod,
 ): Promise<MonitorResponse> => {
+	if (isMockMode()) return getMockMonitor(server_id, period);
+
 	const query = period ? `?period=${period}` : "";
 	const response = await fetch(`/api/v1/server/${server_id}/service${query}`);
 	const data = await response.json();
@@ -56,6 +71,8 @@ export const fetchMonitor = async (
 };
 
 export const fetchService = async (): Promise<ServiceResponse> => {
+	if (isMockMode()) return getMockService();
+
 	const response = await fetch("/api/v1/service");
 	const data = await response.json();
 	if (data.error) {
@@ -65,6 +82,8 @@ export const fetchService = async (): Promise<ServiceResponse> => {
 };
 
 export const fetchSetting = async (): Promise<SettingResponse> => {
+	if (isMockMode()) return getMockSetting();
+
 	const response = await fetch("/api/v1/setting");
 	const data = await response.json();
 	if (data.error) {
@@ -78,6 +97,8 @@ export const fetchServerMetrics = async (
 	metric: MetricType,
 	period?: MetricPeriod,
 ): Promise<ServerMetricsResponse> => {
+	if (isMockMode()) return getMockServerMetrics(server_id, metric, period);
+
 	const query = period
 		? `?metric=${metric}&period=${period}`
 		: `?metric=${metric}`;

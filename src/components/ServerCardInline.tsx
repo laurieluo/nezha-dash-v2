@@ -69,7 +69,7 @@ export default function ServerCardInline({
 					className={cn("grid items-center gap-2 lg:w-36")}
 					style={{ gridTemplateColumns: "auto auto 1fr" }}
 				>
-					<span className="h-2 w-2 shrink-0 rounded-full bg-green-500 self-center"></span>
+					<span className="h-2 w-2 shrink-0 rounded-full bg-status-online self-center"></span>
 					<div
 						className={cn(
 							"flex items-center justify-center",
@@ -81,7 +81,7 @@ export default function ServerCardInline({
 					<div className="relative w-28 flex flex-col">
 						<p
 							className={cn(
-								"break-normal font-bold tracking-tight",
+								"break-normal font-serif font-medium tracking-normal leading-tight",
 								showFlag ? "text-xs " : "text-sm",
 							)}
 						>
@@ -98,7 +98,7 @@ export default function ServerCardInline({
 						<div
 							className={"items-center flex flex-row gap-2 whitespace-nowrap"}
 						>
-							<div className="text-xs font-semibold">
+							<div className="text-xs font-medium">
 								{platform.includes("Windows") ? (
 									<MageMicrosoftWindows className="size-[10px]" />
 								) : (
@@ -109,7 +109,7 @@ export default function ServerCardInline({
 								<p className="text-xs text-muted-foreground">
 									{t("serverCard.system")}
 								</p>
-								<div className="flex items-center text-[10.5px] font-semibold">
+								<div className="flex items-center text-[10.5px] font-medium">
 									{platform.includes("Windows")
 										? "Windows"
 										: GetOsName(platform)}
@@ -120,7 +120,7 @@ export default function ServerCardInline({
 							<p className="text-xs text-muted-foreground">
 								{t("serverCard.uptime")}
 							</p>
-							<div className="flex items-center text-xs font-semibold">
+							<div className="flex items-center text-xs font-medium tabular-nums">
 								{uptime / 86400 >= 1
 									? `${(uptime / 86400).toFixed(0)} ${t("serverCard.days")}`
 									: `${(uptime / 3600).toFixed(0)} ${t("serverCard.hours")}`}
@@ -128,7 +128,7 @@ export default function ServerCardInline({
 						</div>
 						<div className={"flex w-14 flex-col"}>
 							<p className="text-xs text-muted-foreground">{"CPU"}</p>
-							<div className="flex items-center text-xs font-semibold">
+							<div className="flex items-center text-xs font-medium tabular-nums">
 								{cpu.toFixed(2)}%
 							</div>
 							<ServerUsageBar value={cpu} />
@@ -137,7 +137,7 @@ export default function ServerCardInline({
 							<p className="text-xs text-muted-foreground">
 								{t("serverCard.mem")}
 							</p>
-							<div className="flex items-center text-xs font-semibold">
+							<div className="flex items-center text-xs font-medium tabular-nums">
 								{mem.toFixed(2)}%
 							</div>
 							<ServerUsageBar value={mem} />
@@ -146,7 +146,7 @@ export default function ServerCardInline({
 							<p className="text-xs text-muted-foreground">
 								{t("serverCard.stg")}
 							</p>
-							<div className="flex items-center text-xs font-semibold">
+							<div className="flex items-center text-xs font-medium tabular-nums">
 								{stg.toFixed(2)}%
 							</div>
 							<ServerUsageBar value={stg} />
@@ -155,7 +155,7 @@ export default function ServerCardInline({
 							<p className="text-xs text-muted-foreground">
 								{t("serverCard.upload")}
 							</p>
-							<div className="flex items-center text-xs font-semibold">
+							<div className="flex items-center text-xs font-medium tabular-nums">
 								{up >= 1024
 									? `${(up / 1024).toFixed(2)}G/s`
 									: up >= 1
@@ -167,7 +167,7 @@ export default function ServerCardInline({
 							<p className="text-xs text-muted-foreground">
 								{t("serverCard.download")}
 							</p>
-							<div className="flex items-center text-xs font-semibold">
+							<div className="flex items-center text-xs font-medium tabular-nums">
 								{down >= 1024
 									? `${(down / 1024).toFixed(2)}G/s`
 									: down >= 1
@@ -179,7 +179,7 @@ export default function ServerCardInline({
 							<p className="text-xs text-muted-foreground">
 								{t("serverCard.totalUpload")}
 							</p>
-							<div className="flex items-center text-xs font-semibold">
+							<div className="flex items-center text-xs font-medium tabular-nums">
 								{formatBytes(net_out_transfer)}
 							</div>
 						</div>
@@ -187,7 +187,7 @@ export default function ServerCardInline({
 							<p className="text-xs text-muted-foreground">
 								{t("serverCard.totalDownload")}
 							</p>
-							<div className="flex items-center text-xs font-semibold">
+							<div className="flex items-center text-xs font-medium tabular-nums">
 								{formatBytes(net_in_transfer)}
 							</div>
 						</div>
@@ -210,7 +210,7 @@ export default function ServerCardInline({
 				className={cn("grid items-center gap-2 w-40")}
 				style={{ gridTemplateColumns: "auto auto 1fr" }}
 			>
-				<span className="h-2 w-2 shrink-0 rounded-full bg-red-500 self-center"></span>
+				<span className="h-2 w-2 shrink-0 rounded-full bg-status-offline self-center"></span>
 				<div
 					className={cn(
 						"flex items-center justify-center",
@@ -222,7 +222,7 @@ export default function ServerCardInline({
 				<div className="relative flex flex-col">
 					<p
 						className={cn(
-							"break-normal font-bold w-28 tracking-tight",
+							"break-normal font-serif font-medium w-28 tracking-normal leading-tight",
 							showFlag ? "text-xs" : "text-sm",
 						)}
 					>

@@ -19,8 +19,8 @@ export function ThemeColorManager() {
 
 			const themeColor =
 				currentTheme === "dark"
-					? "hsl(30 15% 8%)" // 深色模式背景色
-					: "hsl(0 0% 98%)"; // 浅色模式背景色
+					? "hsl(60 3% 8%)" // 深色模式背景色
+					: "hsl(53 29% 95%)"; // 浅色模式背景色
 
 			document
 				.querySelector('meta[name="theme-color"]')

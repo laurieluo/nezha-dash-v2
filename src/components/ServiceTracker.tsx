@@ -2,13 +2,12 @@ import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { fetchService } from "@/lib/nezha-api";
-import type { NezhaServer, ServiceData } from "@/types/nezha-api";
+import type { ServiceData } from "@/types/nezha-api";
 
-import { CycleTransferStatsCard } from "./CycleTransferStats";
 import { Loader } from "./loading/Loader";
 import ServiceTrackerClient from "./ServiceTrackerClient";
 
-export function ServiceTracker({ serverList }: { serverList: NezhaServer[] }) {
+export function ServiceTracker() {
 	const { t } = useTranslation();
 	const { data: serviceData, isLoading } = useQuery({
 		queryKey: ["service"],
@@ -68,17 +67,9 @@ export function ServiceTracker({ serverList }: { serverList: NezhaServer[] }) {
 
 	return (
 		<div className="mt-4 w-full mx-auto ">
-			{serviceData.data.cycle_transfer_stats && (
-				<div>
-					<CycleTransferStatsCard
-						serverList={serverList}
-						cycleStats={serviceData.data.cycle_transfer_stats}
-					/>
-				</div>
-			)}
 			{serviceData.data.services &&
 				Object.keys(serviceData.data.services).length > 0 && (
-					<section className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-2 md:gap-4">
+					<section className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
 						{Object.entries(serviceData.data.services).map(([name, data]) => {
 							const { days, uptime, avgDelay } = processServiceData(data);
 							return (

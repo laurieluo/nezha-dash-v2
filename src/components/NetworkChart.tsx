@@ -327,7 +327,7 @@ export const NetworkChartClient = React.memo(function NetworkChart({
 					<button
 						key={key}
 						data-active={activeCharts.includes(key)}
-						className={`relative z-30 flex cursor-pointer grow basis-0 flex-col justify-center gap-1 border-b border-neutral-200 dark:border-neutral-800 px-6 py-4 text-left data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-6`}
+						className={`relative z-30 flex cursor-pointer grow basis-0 flex-col justify-center gap-1 border-b border-border px-6 py-4 text-left data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-6`}
 						onClick={() => handleButtonClick(key)}
 					>
 						<span className="whitespace-nowrap text-xs text-muted-foreground">
@@ -338,10 +338,10 @@ export const NetworkChartClient = React.memo(function NetworkChart({
 								{lastDelay.toFixed(2)}ms
 							</span>
 							<div className="flex items-center gap-2 text-[12px]">
-								<span className="text-green-600 dark:text-green-400">
+								<span className="text-metric-download">
 									↓{stats.minDelay.toFixed(0)}
 								</span>
-								<span className="text-red-600 dark:text-red-500">
+								<span className="text-metric-upload">
 									↑{stats.maxDelay.toFixed(0)}
 								</span>
 								{avgPacketLoss !== null && (
@@ -565,7 +565,7 @@ export const NetworkChartClient = React.memo(function NetworkChart({
 									{period === option.value && (
 										<m.div
 											layoutId="network-period-selector-active"
-											className="absolute inset-0 z-10 h-full w-full bg-white dark:bg-background rounded-full ring-1 ring-border/60 dark:ring-border/40"
+											className="absolute inset-0 z-10 h-full w-full bg-card rounded-full ring-1 ring-border/60"
 											transition={{
 												type: "spring",
 												stiffness: 400,
@@ -623,7 +623,7 @@ export const NetworkChartClient = React.memo(function NetworkChart({
 					<div className="relative">
 						{activeCharts.length > 0 && (
 							<button
-								className="absolute -top-2 right-1 z-10 text-xs px-2 py-1 bg-stone-100/80 dark:bg-stone-800/80 backdrop-blur-xs rounded-[5px] text-muted-foreground hover:text-foreground transition-colors"
+								className="absolute -top-2 right-1 z-10 text-xs px-2 py-1 bg-secondary/80 backdrop-blur-xs rounded-[5px] text-muted-foreground hover:text-foreground transition-colors"
 								onClick={clearAllSelections}
 							>
 								{t("monitor.clearSelections", "Clear")} ({activeCharts.length})

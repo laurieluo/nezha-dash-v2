@@ -2,9 +2,6 @@ import {
 	ArrowDownIcon,
 	ArrowsUpDownIcon,
 	ArrowUpIcon,
-	ChartBarSquareIcon,
-	MapIcon,
-	ViewColumnsIcon,
 } from "@heroicons/react/20/solid";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -13,7 +10,6 @@ import GlobalMap from "@/components/GlobalMap";
 import GroupSwitch from "@/components/GroupSwitch";
 import { Loader } from "@/components/loading/Loader";
 import ServerCard from "@/components/ServerCard";
-import ServerCardInline from "@/components/ServerCardInline";
 import ServerOverview from "@/components/ServerOverview";
 import { ServiceTracker } from "@/components/ServiceTracker";
 import { Label } from "@/components/ui/label";
@@ -33,9 +29,51 @@ import { SORT_ORDERS, SORT_TYPES } from "@/context/sort-context";
 import { useSort } from "@/hooks/use-sort";
 import { useStatus } from "@/hooks/use-status";
 import { useWebSocketContext } from "@/hooks/use-websocket-context";
-import { fetchServerGroup } from "@/lib/nezha-api";
+import { fetchServerGroup, fetchService } from "@/lib/nezha-api";
 import { cn, formatNezhaInfo } from "@/lib/utils";
-import type { NezhaWebsocketResponse, ServerGroup } from "@/types/nezha-api";
+import type {
+	CycleTransferData,
+	CycleTransferStats,
+	NezhaWebsocketResponse,
+	ServerGroup,
+} from "@/types/nezha-api";
+
+export type ServerCycleTransfer = {
+	name: string;
+	from: string;
+	to: string;
+	max: number;
+	min: number;
+	transfer: number;
+	nextUpdate: string;
+};
+
+function getServerCycleTransfer(
+	serverId: number,
+	cycleStats?: CycleTransferStats,
+): ServerCycleTransfer | undefined {
+	if (!cycleStats) return undefined;
+
+	for (const cycleData of Object.values(cycleStats) as CycleTransferData[]) {
+		const key = String(serverId);
+		const transfer = cycleData.transfer?.[key];
+		const nextUpdate = cycleData.next_update?.[key];
+
+		if (transfer === undefined && !nextUpdate) continue;
+
+		return {
+			name: cycleData.name,
+			from: cycleData.from,
+			to: cycleData.to,
+			max: cycleData.max,
+			min: cycleData.min,
+			transfer: transfer || 0,
+			nextUpdate: nextUpdate || "",
+		};
+	}
+
+	return undefined;
+}
 
 export default function Servers() {
 	const { t } = useTranslation();
@@ -44,11 +82,15 @@ export default function Servers() {
 		queryKey: ["server-group"],
 		queryFn: () => fetchServerGroup(),
 	});
+	const { data: serviceData } = useQuery({
+		queryKey: ["service"],
+		queryFn: () => fetchService(),
+		refetchOnMount: true,
+		refetchOnWindowFocus: true,
+		refetchInterval: 10000,
+	});
 	const { lastMessage, connected } = useWebSocketContext();
 	const { status } = useStatus();
-	const [showServices, setShowServices] = useState<string>("0");
-	const [showMap, setShowMap] = useState<string>("0");
-	const [inline, setInline] = useState<string>("0");
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 	const [currentGroup, setCurrentGroup] = useState<string>("All");
@@ -73,47 +115,6 @@ export default function Servers() {
 			String(containerRef.current?.scrollTop || 0),
 		);
 	};
-
-	useEffect(() => {
-		const showServicesState = localStorage.getItem("showServices");
-		if (window.ForceShowServices) {
-			setShowServices("1");
-		} else if (showServicesState !== null) {
-			setShowServices(showServicesState);
-		}
-	}, []);
-
-	useEffect(() => {
-		const checkInlineSettings = () => {
-			const isMobile = window.innerWidth < 768;
-
-			if (!isMobile) {
-				const inlineState = localStorage.getItem("inline");
-				if (window.ForceCardInline) {
-					setInline("1");
-				} else if (inlineState !== null) {
-					setInline(inlineState);
-				}
-			}
-		};
-
-		checkInlineSettings();
-
-		window.addEventListener("resize", checkInlineSettings);
-
-		return () => {
-			window.removeEventListener("resize", checkInlineSettings);
-		};
-	}, []);
-
-	useEffect(() => {
-		const showMapState = localStorage.getItem("showMap");
-		if (window.ForceShowMap) {
-			setShowMap("1");
-		} else if (showMapState !== null) {
-			setShowMap(showMapState);
-		}
-	}, []);
 
 	useEffect(() => {
 		const savedGroup = sessionStorage.getItem("selectedGroup") || "All";
@@ -290,78 +291,8 @@ export default function Servers() {
 
 	return (
 		<div className="mx-auto w-full max-w-5xl px-0">
-			<ServerOverview
-				total={totalServers}
-				online={onlineServers}
-				offline={offlineServers}
-				up={up}
-				down={down}
-				upSpeed={upSpeed}
-				downSpeed={downSpeed}
-			/>
-			<div className="flex mt-6 items-center justify-between gap-2 server-overview-controls">
+			<div className="flex items-center justify-between gap-2 server-overview-controls">
 				<section className="flex items-center gap-2 w-full overflow-hidden">
-					<button
-						onClick={() => {
-							setShowMap(showMap === "0" ? "1" : "0");
-							localStorage.setItem("showMap", showMap === "0" ? "1" : "0");
-						}}
-						className={cn(
-							"inset-shadow-2xs inset-shadow-white/20 flex cursor-pointer flex-col items-center gap-0 rounded-[50px] bg-blue-100 p-2.5 text-blue-600 transition-all dark:bg-blue-900 dark:text-blue-100",
-							{
-								"inset-shadow-black/20 bg-blue-600 text-white dark:bg-blue-100 dark:text-blue-600":
-									showMap === "1",
-							},
-							{
-								"bg-opacity-70 dark:bg-opacity-70": customBackgroundImage,
-							},
-						)}
-					>
-						<MapIcon className={cn("size-[13px]")} />
-					</button>
-					<button
-						onClick={() => {
-							setShowServices(showServices === "0" ? "1" : "0");
-							localStorage.setItem(
-								"showServices",
-								showServices === "0" ? "1" : "0",
-							);
-						}}
-						className={cn(
-							"inset-shadow-2xs inset-shadow-white/20 flex cursor-pointer flex-col items-center gap-0 rounded-[50px] bg-blue-100 p-2.5 text-blue-600 transition-all dark:bg-blue-900 dark:text-blue-100",
-							{
-								"inset-shadow-black/20 bg-blue-600 text-white dark:bg-blue-100 dark:text-blue-600":
-									showServices === "1",
-							},
-							{
-								"bg-opacity-70 dark:bg-opacity-70": customBackgroundImage,
-							},
-						)}
-					>
-						<ChartBarSquareIcon className={cn("size-[13px]")} />
-					</button>
-					<button
-						onClick={() => {
-							setInline(inline === "0" ? "1" : "0");
-							localStorage.setItem("inline", inline === "0" ? "1" : "0");
-						}}
-						className={cn(
-							"inset-shadow-2xs inset-shadow-white/20 flex cursor-pointer flex-col items-center gap-0 rounded-[50px] bg-blue-100 p-2.5 text-blue-600 transition-all dark:bg-blue-900 dark:text-blue-100",
-							{
-								"inset-shadow-black/20 bg-blue-600 text-white dark:bg-blue-100 dark:text-blue-600":
-									inline === "1",
-							},
-							{
-								"bg-opacity-70 dark:bg-opacity-70": customBackgroundImage,
-							},
-						)}
-					>
-						<ViewColumnsIcon
-							className={cn("size-[13px]", {
-								"text-white": inline === "1",
-							})}
-						/>
-					</button>
 					<GroupSwitch
 						tabs={groupTabs}
 						currentTab={currentGroup}
@@ -372,14 +303,13 @@ export default function Servers() {
 					<PopoverTrigger asChild>
 						<button
 							className={cn(
-								"rounded-[50px] flex items-center gap-1 dark:text-white border dark:border-none text-black cursor-pointer dark:[text-shadow:0_1px_0_rgb(0_0_0/20%)] dark:bg-stone-800 bg-white  p-[10px] transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]  ",
+								"rounded-full flex items-center gap-1 border border-input bg-card p-[10px] text-foreground cursor-pointer shadow-[0_0_0_1px_hsl(var(--border))] transition-all hover:bg-accent",
 								{
-									"shadow-[inset_0_1px_0_rgba(0,0,0,0.2)] dark:bg-stone-700 bg-stone-200":
+									"bg-secondary shadow-[0_0_0_1px_hsl(var(--ring))]":
 										settingsOpen,
 								},
 								{
-									"dark:bg-stone-800/70 bg-stone-100/70 ":
-										customBackgroundImage,
+									"bg-card/70": customBackgroundImage && !settingsOpen,
 								},
 							)}
 						>
@@ -439,41 +369,39 @@ export default function Servers() {
 					</PopoverContent>
 				</Popover>
 			</div>
-			{showMap === "1" && (
-				<GlobalMap
-					now={nezhaWsData.now}
-					serverList={nezhaWsData?.servers || []}
+			<div className="mt-4">
+				<ServerOverview
+					total={totalServers}
+					online={onlineServers}
+					offline={offlineServers}
+					up={up}
+					down={down}
+					upSpeed={upSpeed}
+					downSpeed={downSpeed}
 				/>
-			)}
-			{showServices === "1" && <ServiceTracker serverList={filteredServers} />}
-			{inline === "1" && (
-				<section
-					ref={containerRef}
-					className="flex flex-col gap-2 overflow-x-scroll scrollbar-hidden mt-6 server-inline-list"
-				>
-					{filteredServers.map((serverInfo) => (
-						<ServerCardInline
-							now={nezhaWsData.now}
-							key={serverInfo.id}
-							serverInfo={serverInfo}
-						/>
-					))}
-				</section>
-			)}
-			{inline === "0" && (
-				<section
-					ref={containerRef}
-					className="grid grid-cols-1 gap-2 md:grid-cols-2 mt-6 server-card-list"
-				>
-					{filteredServers.map((serverInfo) => (
-						<ServerCard
-							now={nezhaWsData.now}
-							key={serverInfo.id}
-							serverInfo={serverInfo}
-						/>
-					))}
-				</section>
-			)}
+			</div>
+			<ServiceTracker />
+			<section
+				ref={containerRef}
+				className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mt-6 server-card-list"
+			>
+				{filteredServers.map((serverInfo) => (
+					<ServerCard
+						now={nezhaWsData.now}
+						key={serverInfo.id}
+						serverInfo={serverInfo}
+						cycleTransfer={getServerCycleTransfer(
+							serverInfo.id,
+							serviceData?.data?.cycle_transfer_stats,
+						)}
+					/>
+				))}
+			</section>
+			<GlobalMap
+				now={nezhaWsData.now}
+				serverList={nezhaWsData?.servers || []}
+				compact
+			/>
 		</div>
 	);
 }

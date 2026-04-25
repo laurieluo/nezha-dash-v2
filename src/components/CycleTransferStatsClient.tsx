@@ -28,7 +28,7 @@ export const CycleTransferStatsClient: React.FC<
 	return (
 		<div
 			className={cn(
-				"w-full bg-white px-4 py-3.5 rounded-lg border bg-card text-card-foreground hover:shadow-xs transition-all duration-200 dark:shadow-none",
+				"w-full rounded-lg border bg-card px-4 py-3.5 text-card-foreground shadow-[0_0_0_1px_hsl(var(--border))] transition-all duration-200",
 				className,
 				{
 					"bg-card/70": customBackgroundImage,
@@ -42,10 +42,10 @@ export const CycleTransferStatsClient: React.FC<
 					<div key={serverId} className="space-y-3">
 						{/* Header */}
 						<div className="flex items-center justify-between">
-							<span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+							<span className="font-serif text-[1.05rem] font-medium leading-tight tracking-normal text-foreground">
 								{serverName}
 							</span>
-							<div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded text-xs font-medium">
+							<div className="bg-secondary text-secondary-foreground px-2 py-0.5 rounded text-xs font-medium">
 								{name}
 							</div>
 						</div>
@@ -54,29 +54,29 @@ export const CycleTransferStatsClient: React.FC<
 						<div className="space-y-1.5">
 							<div className="flex items-center justify-between">
 								<div className="flex items-baseline gap-1">
-									<span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+									<span className="text-sm font-medium tabular-nums text-foreground">
 										{formatBytes(transfer)}
 									</span>
-									<span className="text-xs text-neutral-500 dark:text-neutral-400">
+									<span className="text-xs text-muted-foreground">
 										/ {formatBytes(max)}
 									</span>
 								</div>
-								<span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
+								<span className="text-xs font-medium tabular-nums text-muted-foreground">
 									{progress.toFixed(1)}%
 								</span>
 							</div>
 
 							<div className="relative h-1.5">
-								<div className="absolute inset-0 bg-neutral-100 dark:bg-neutral-800 rounded-full" />
+								<div className="absolute inset-0 bg-secondary rounded-full" />
 								<div
-									className="absolute inset-0 bg-emerald-500 rounded-full transition-all duration-300"
+									className="absolute inset-0 bg-primary rounded-full transition-all duration-300"
 									style={{ width: `${Math.min(progress, 100)}%` }}
 								/>
 							</div>
 						</div>
 
 						{/* Footer */}
-						<div className="flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400">
+						<div className="flex items-center justify-between text-[11px] text-muted-foreground">
 							<span>
 								{new Date(from).toLocaleDateString()} -{" "}
 								{new Date(to).toLocaleDateString()}

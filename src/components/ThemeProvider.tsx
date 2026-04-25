@@ -42,7 +42,7 @@ export function ThemeProvider({
 
 			root.classList.add(systemTheme);
 			const themeColor =
-				systemTheme === "dark" ? "hsl(30 15% 8%)" : "hsl(0 0% 98%)";
+				systemTheme === "dark" ? "hsl(60 3% 8%)" : "hsl(53 29% 95%)";
 			document
 				.querySelector('meta[name="theme-color"]')
 				?.setAttribute("content", themeColor);
@@ -53,7 +53,7 @@ export function ThemeProvider({
 		}
 
 		root.classList.add(theme);
-		const themeColor = theme === "dark" ? "hsl(30 15% 8%)" : "hsl(0 0% 98%)";
+		const themeColor = theme === "dark" ? "hsl(60 3% 8%)" : "hsl(53 29% 95%)";
 		document
 			.querySelector('meta[name="theme-color"]')
 			?.setAttribute("content", themeColor);

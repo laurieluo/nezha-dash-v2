@@ -72,9 +72,9 @@ export default function GroupSwitch({
 		>
 			<div
 				className={cn(
-					"flex items-center gap-1 rounded-[50px] bg-stone-100 p-[3px] dark:bg-stone-800",
+					"flex items-center gap-1 rounded-[50px] bg-secondary p-[3px]",
 					{
-						"bg-stone-100/70 dark:bg-stone-800/70": customBackgroundImage,
+						"bg-secondary/70": customBackgroundImage,
 					},
 				)}
 			>
@@ -85,15 +85,13 @@ export default function GroupSwitch({
 						onClick={() => setCurrentTab(tab)}
 						className={cn(
 							"relative cursor-pointer rounded-3xl px-2.5 py-[8px] text-[13px] font-semibold transition-all duration-500",
-							currentTab === tab
-								? "text-black dark:text-white"
-								: "text-stone-400 dark:text-stone-500",
+							currentTab === tab ? "text-foreground" : "text-muted-foreground",
 						)}
 					>
 						{currentTab === tab && (
 							<m.div
 								layoutId="tab-switch"
-								className="absolute inset-0 z-10 h-full w-full content-center bg-white shadow-lg shadow-black/5 dark:bg-stone-700 dark:shadow-white/5"
+								className="absolute inset-0 z-10 h-full w-full content-center bg-card shadow-[0_0_0_1px_hsl(var(--border)),0_4px_24px_rgb(0_0_0/0.05)]"
 								style={{
 									originY: "0px",
 									borderRadius: 46,

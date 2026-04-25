@@ -100,12 +100,12 @@ function UsageBar({ value }: UsageBarProps) {
 			value={value}
 			indicatorClassName={
 				value > 90
-					? "bg-red-500"
+					? "bg-status-offline"
 					: value > 70
-						? "bg-orange-400"
-						: "bg-green-500"
+						? "bg-status-warning"
+						: "bg-status-online"
 			}
-			className={"h-[3px] rounded-sm bg-stone-200 dark:bg-stone-800"}
+			className={"h-[3px] rounded-sm bg-secondary"}
 		/>
 	);
 }

@@ -145,13 +145,13 @@ function PeriodSelector({
 							{selectedPeriod === period.value && (
 								<m.div
 									layoutId="period-selector-active"
-									className="absolute inset-0 z-10 h-full w-full bg-white dark:bg-background rounded-full ring-1 ring-border/60 dark:ring-border/40"
+									className="absolute inset-0 z-10 h-full w-full bg-card rounded-full ring-1 ring-border/60"
 									transition={{ type: "spring", stiffness: 250, damping: 30 }}
 								/>
 							)}
 							<div className="relative z-20 flex items-center gap-1.5">
 								{period.value === "realtime" && (
-									<span className="inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500 dark:bg-emerald-400"></span>
+									<span className="inline-flex rounded-full h-1.5 w-1.5 bg-status-online"></span>
 								)}
 								{period.label}
 							</div>

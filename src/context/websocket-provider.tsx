@@ -5,6 +5,7 @@ import {
 	WebSocketContext,
 	type WebSocketContextType,
 } from "./websocket-context";
+import { getMockWebsocketData, isMockMode } from "@/lib/mock-data";
 
 interface WebSocketProviderProps {
 	url: string;
@@ -21,11 +22,16 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 	const [needReconnect, setNeedReconnect] = useState(false);
 	const ws = useRef<WebSocket | null>(null);
 	const reconnectTimeout = useRef<NodeJS.Timeout>(null);
+	const mockInterval = useRef<NodeJS.Timeout>(null);
 	const maxReconnectAttempts = 30;
 	const reconnectAttempts = useRef(0);
 	const isConnecting = useRef(false);
 
 	const cleanup = useCallback(() => {
+		if (mockInterval.current) {
+			clearInterval(mockInterval.current);
+			mockInterval.current = null;
+		}
 		if (ws.current) {
 			// 移除所有事件监听器
 			ws.current.onopen = null;
@@ -55,6 +61,25 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 		}
 
 		cleanup();
+
+		if (isMockMode()) {
+			const emitMockMessage = () => {
+				const newMessage = { data: JSON.stringify(getMockWebsocketData()) };
+				setLastMessage(newMessage);
+				setMessageHistory((prev) => {
+					const updated = [newMessage, ...prev];
+					return updated.slice(0, 30);
+				});
+			};
+
+			emitMockMessage();
+			mockInterval.current = setInterval(emitMockMessage, 2000);
+			setConnected(true);
+			setNeedReconnect(false);
+			isConnecting.current = false;
+			return;
+		}
+
 		isConnecting.current = true;
 
 		try {

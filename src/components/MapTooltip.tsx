@@ -11,18 +11,24 @@ const MapTooltip = memo(function MapTooltip() {
 
 	if (!tooltipData) return null;
 
+	const xPercent = (tooltipData.centroid[0] / tooltipData.mapSize.width) * 100;
+	const yPercent = (tooltipData.centroid[1] / tooltipData.mapSize.height) * 100;
+	const alignLeft = xPercent > 62;
+
 	return (
 		<AnimatePresence mode="wait">
 			<m.div
 				initial={{ opacity: 0, filter: "blur(10px)" }}
 				animate={{ opacity: 1, filter: "blur(0px)" }}
 				exit={{ opacity: 0, filter: "blur(10px)" }}
-				className="absolute hidden lg:block bg-white dark:bg-neutral-800 px-2 py-1 rounded shadow-lg text-sm dark:border dark:border-neutral-700 z-50"
+				className="absolute hidden lg:block w-max max-w-[220px] bg-card px-2 py-1 rounded border border-border text-sm shadow-[0_0_0_1px_hsl(var(--border)),0_4px_24px_rgb(0_0_0/0.05)] z-50"
 				key={tooltipData.country}
 				style={{
-					left: tooltipData.centroid[0],
-					top: tooltipData.centroid[1],
-					transform: "translate(20%, -50%)",
+					left: `${xPercent}%`,
+					top: `${yPercent}%`,
+					transform: alignLeft
+						? "translate(calc(-100% - 12px), -50%)"
+						: "translate(12px, -50%)",
 				}}
 				onMouseEnter={(e) => {
 					e.stopPropagation();
@@ -34,12 +40,12 @@ const MapTooltip = memo(function MapTooltip() {
 							? "Mainland China"
 							: tooltipData.country}
 					</p>
-					<p className="text-neutral-600 dark:text-neutral-400 text-xs font-light mb-1">
+					<p className="text-muted-foreground text-xs font-light mb-1">
 						{tooltipData.count} {t("map.Servers")}
 					</p>
 				</div>
 				<div
-					className="border-t dark:border-neutral-700 pt-1"
+					className="border-t border-border pt-1"
 					style={{
 						maxHeight: "200px",
 						overflowY: "auto",
@@ -49,16 +55,16 @@ const MapTooltip = memo(function MapTooltip() {
 						<button
 							key={server.id}
 							type="button"
-							className="flex items-center gap-1.5 py-0.5 text-neutral-500 transition-colors hover:text-black dark:text-neutral-400 dark:hover:text-white"
+							className="flex items-center gap-1.5 py-0.5 text-muted-foreground transition-colors hover:text-foreground"
 							onClick={() => {
 								sessionStorage.setItem("fromMainPage", "true");
 								navigate(`/server/${server.id}`);
 							}}
 						>
 							<span
-								className={`h-1.5 w-1.5 shrink-0 rounded-full ${server.status ? "bg-green-500" : "bg-red-500"}`}
+								className={`h-1.5 w-1.5 shrink-0 rounded-full ${server.status ? "bg-status-online" : "bg-status-offline"}`}
 							/>
-							<span className="text-xs">{server.name}</span>
+							<span className="truncate text-xs">{server.name}</span>
 						</button>
 					))}
 				</div>

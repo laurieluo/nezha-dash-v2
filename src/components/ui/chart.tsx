@@ -51,7 +51,7 @@ const ChartContainer = React.forwardRef<
 				data-chart={chartId}
 				ref={ref}
 				className={cn(
-					"flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden",
+					"flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-layer]:outline-hidden [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden",
 					className,
 				)}
 				{...props}
@@ -194,7 +194,7 @@ const ChartTooltipContent = React.forwardRef<
 			<div
 				ref={ref}
 				className={cn(
-					"grid min-w-32 items-start gap-1.5 overflow-hidden rounded-sm border border-border/50 bg-stone-100 text-xs dark:bg-stone-900",
+					"grid min-w-32 items-start gap-1.5 overflow-hidden rounded-sm border border-border/50 bg-secondary text-xs",
 					className,
 				)}
 			>
@@ -205,7 +205,7 @@ const ChartTooltipContent = React.forwardRef<
 				)}
 
 				<div
-					className={cn("grid gap-1.5 bg-white px-2.5 py-1.5 dark:bg-black", {
+					className={cn("grid gap-1.5 bg-card px-2.5 py-1.5", {
 						"border-t": !nestLabel,
 					})}
 				>

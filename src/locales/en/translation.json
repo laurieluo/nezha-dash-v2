@@ -1,5 +1,4 @@
 {
-	"nezha": "Nezha Monitoring",
 	"overview": "Overview",
 	"dashboard": "Dashboard",
 	"login": "Login",
@@ -144,5 +143,6 @@
 	"ToggleLightMode": "Toggle Light Mode",
 	"ToggleDarkMode": "Toggle Dark Mode",
 	"ToggleSystemMode": "Toggle System Mode",
-	"Home": "Home"
+	"Home": "Home",
+	"appName": "Monitoring"
 }

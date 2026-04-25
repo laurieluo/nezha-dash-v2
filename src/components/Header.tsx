@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, m } from "framer-motion";
 import { ImageMinus } from "lucide-react";
-import { DateTime } from "luxon";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ModeToggle } from "@/components/ThemeSwitcher";
@@ -13,40 +12,9 @@ import { useWebSocketContext } from "@/hooks/use-websocket-context";
 import { fetchLoginUser, fetchSetting } from "@/lib/nezha-api";
 import { cn } from "@/lib/utils";
 
-import AnimateCountClient from "./AnimatedCount";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Loader, LoadingSpinner } from "./loading/Loader";
 import { SearchButton } from "./SearchButton";
 import { Button } from "./ui/button";
-
-interface TimeState {
-	hh: number;
-	mm: number;
-	ss: number;
-}
-
-const useCurrentTime = () => {
-	const [time, setTime] = useState<TimeState>({
-		hh: DateTime.now().setLocale("en-US").hour,
-		mm: DateTime.now().setLocale("en-US").minute,
-		ss: DateTime.now().setLocale("en-US").second,
-	});
-
-	useEffect(() => {
-		const intervalId = setInterval(() => {
-			const now = DateTime.now().setLocale("en-US");
-			setTime({
-				hh: now.hour,
-				mm: now.minute,
-				ss: now.second,
-			});
-		}, 1000);
-
-		return () => clearInterval(intervalId);
-	}, []);
-
-	return time;
-};
 
 function Header() {
 	const { t } = useTranslation();
@@ -71,10 +39,10 @@ function Header() {
 	const siteName = settingData?.data?.config?.site_name;
 
 	// @ts-expect-error CustomLogo is a global variable
-	const customLogo = window.CustomLogo || "/apple-touch-icon.png";
+	const customLogo = window.CustomLogo || "/app-icon.svg";
 
 	// @ts-expect-error CustomDesc is a global variable
-	const customDesc = window.CustomDesc || t("nezha");
+	const customDesc = window.CustomDesc || "";
 
 	const customMobileBackgroundImage =
 		window.CustomMobileBackgroundImage !== ""
@@ -95,8 +63,8 @@ function Header() {
 	}, [customLogo]);
 
 	useEffect(() => {
-		document.title = siteName || "哪吒监控 Nezha Monitoring";
-	}, [siteName]);
+		document.title = siteName || t("appName");
+	}, [siteName, t]);
 
 	const handleBackgroundToggle = () => {
 		if (window.CustomBackgroundImage) {
@@ -125,13 +93,13 @@ function Header() {
 						sessionStorage.removeItem("selectedGroup");
 						navigate("/");
 					}}
-					className="cursor-pointer flex items-center sm:text-base text-sm font-medium"
+					className="cursor-pointer flex items-center sm:text-base text-sm font-serif font-medium tracking-normal"
 				>
 					<div className="mr-1 flex flex-row items-center justify-start header-logo">
 						<img
 							width={40}
 							height={40}
-							alt="apple-touch-icon"
+							alt=""
 							src={customLogo}
 							className="relative m-0! border-2 border-transparent h-6 w-6 object-cover object-top p-0!"
 						/>
@@ -139,15 +107,19 @@ function Header() {
 					{isLoading ? (
 						<Skeleton className="h-6 w-20 rounded-[5px] bg-muted-foreground/10 animate-none" />
 					) : (
-						siteName || "NEZHA"
+						siteName || t("appName")
 					)}
-					<Separator
-						orientation="vertical"
-						className="mx-2 hidden h-4 w-px md:block"
-					/>
-					<p className="hidden text-sm font-medium opacity-40 md:block">
-						{customDesc}
-					</p>
+					{customDesc && (
+						<>
+							<Separator
+								orientation="vertical"
+								className="mx-2 hidden h-4 w-px md:block"
+							/>
+							<p className="hidden font-sans text-sm font-medium opacity-40 md:block">
+								{customDesc}
+							</p>
+						</>
+					)}
 				</section>
 				<section className="flex items-center gap-2 header-handles">
 					<div className="hidden sm:flex items-center gap-2">
@@ -155,7 +127,6 @@ function Header() {
 						<DashboardLink />
 					</div>
 					<SearchButton />
-					<LanguageSwitcher />
 					<ModeToggle />
 					{(customBackgroundImage ||
 						sessionStorage.getItem("savedBackgroundImage")) && (
@@ -163,8 +134,8 @@ function Header() {
 							variant="outline"
 							size="sm"
 							onClick={handleBackgroundToggle}
-							className={cn("rounded-full px-[9px] bg-white dark:bg-black", {
-								"bg-white/70 dark:bg-black/70": customBackgroundImage,
+							className={cn("rounded-full bg-card px-[9px]", {
+								"bg-card/70": customBackgroundImage,
 								"hidden sm:block": customMobileBackgroundImage,
 							})}
 						>
@@ -175,9 +146,9 @@ function Header() {
 						variant="outline"
 						size="sm"
 						className={cn(
-							"hover:bg-white dark:hover:bg-black cursor-default rounded-full flex items-center px-[9px] bg-white dark:bg-black",
+							"cursor-default rounded-full flex items-center bg-card px-[9px] hover:bg-accent",
 							{
-								"bg-white/70 dark:bg-black/70": customBackgroundImage,
+								"bg-card/70": customBackgroundImage,
 							},
 						)}
 					>
@@ -186,8 +157,8 @@ function Header() {
 							{connected ? t("online") : t("offline")}
 						</p>
 						<span
-							className={cn("h-2 w-2 rounded-full bg-green-500", {
-								"bg-red-500": !connected,
+							className={cn("h-2 w-2 rounded-full bg-status-online", {
+								"bg-status-offline": !connected,
 							})}
 						></span>
 					</Button>
@@ -197,7 +168,6 @@ function Header() {
 				<DashboardLink />
 				<Links />
 			</div>
-			<Overview />
 		</div>
 	);
 }
@@ -258,7 +228,7 @@ export function RefreshToast() {
 				animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
 				exit={{ opacity: 0, filter: "blur(10px)", scale: 0.8 }}
 				transition={{ type: "spring", duration: 0.8 }}
-				className="fixed left-1/2 -translate-x-1/2 top-8 z-999 flex items-center justify-between gap-4 rounded-[50px] border border-solid bg-white px-2 py-1.5 shadow-xl shadow-black/5 dark:border-stone-700 dark:bg-stone-800 dark:shadow-none"
+				className="fixed left-1/2 -translate-x-1/2 top-8 z-999 flex items-center justify-between gap-4 rounded-[50px] border border-solid bg-card px-2 py-1.5 shadow-[0_0_0_1px_hsl(var(--border)),0_4px_24px_rgb(0_0_0/0.05)]"
 			>
 				<section className="flex items-center gap-1.5">
 					<LoadingSpinner />
@@ -330,35 +300,4 @@ function DashboardLink() {
 	);
 }
 
-function Overview() {
-	const { t } = useTranslation();
-	const time = useCurrentTime();
-	const [mounted, setMounted] = useState(false);
-
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	return (
-		<section className={"mt-10 flex flex-col md:mt-16 header-timer"}>
-			<p className="text-base font-semibold">👋 {t("overview")}</p>
-			<div className="flex items-center gap-1">
-				<p className="text-sm font-medium opacity-50">{t("whereTheTimeIs")}</p>
-				{mounted ? (
-					<div className="flex items-center font-medium text-sm">
-						<AnimateCountClient count={time.hh} minDigits={2} />
-						<span className="mb-px font-medium text-sm opacity-50">:</span>
-						<AnimateCountClient count={time.mm} minDigits={2} />
-						<span className="mb-px font-medium text-sm opacity-50">:</span>
-						<span className="font-medium text-sm">
-							<AnimateCountClient count={time.ss} minDigits={2} />
-						</span>
-					</div>
-				) : (
-					<Skeleton className="h-[21px] w-16 animate-none rounded-[5px] bg-muted-foreground/10" />
-				)}
-			</div>
-		</section>
-	);
-}
 export default Header;

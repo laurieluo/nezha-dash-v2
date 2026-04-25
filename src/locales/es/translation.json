@@ -66,7 +66,6 @@
 	},
 	"overview": "Descripción general",
 	"dashboard": "Panel",
-	"nezha": "Monitor Nezha",
 	"serverCard": {
 		"mem": "Ram",
 		"days": "Días",
@@ -137,5 +136,6 @@
 	"ToggleSystemMode": "Activar modo del sistema",
 	"footer": {
 		"themeBy": "Tema por. "
-	}
+	},
+	"appName": "Monitorización"
 }

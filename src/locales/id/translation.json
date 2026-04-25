@@ -1,5 +1,4 @@
 {
-	"nezha": "Monitor Nezha",
 	"overview": "Ringkasan",
 	"dashboard": "Dasbor",
 	"login": "Masuk",
@@ -23,5 +22,6 @@
 	"theme": {
 		"light": "Terang",
 		"dark": "Gelap"
-	}
+	},
+	"appName": "Monitoring"
 }

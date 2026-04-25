@@ -24,3 +24,8 @@ dev-dist
 *.njsproj
 *.sln
 *.sw?
+
+# Agents
+DESIGN.md
+AGENTS.md
+CLAUDE.md

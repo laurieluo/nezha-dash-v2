@@ -85,7 +85,7 @@ function HeroMetric({
 			<p className="text-[11px] font-medium uppercase leading-tight tracking-wide text-muted-foreground">
 				{label}
 			</p>
-			<div className="mt-1 min-w-0 text-2xl font-semibold leading-tight text-foreground">
+			<div className="mt-1 min-w-0 text-lg font-semibold leading-tight text-foreground">
 				{value}
 			</div>
 			{children}
@@ -242,12 +242,12 @@ export default function ServerDetailOverview({
 					<div className="mt-4">
 						<div
 							className={cn(
-								"inline-flex max-w-full items-center gap-2.5 text-2xl font-semibold leading-tight",
+								"inline-flex max-w-full items-center gap-2 text-lg font-semibold leading-tight",
 								online ? "text-status-online" : "text-status-offline",
 							)}
 						>
 							<span
-								className={cn("size-2.5 rounded-full bg-status-online", {
+								className={cn("size-2 rounded-full bg-status-online", {
 									"bg-status-offline": !online,
 								})}
 							/>

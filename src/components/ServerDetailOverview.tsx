@@ -135,15 +135,31 @@ function summarizeHardwareItems(items: string[], showCount = true) {
 	);
 }
 
+function getDetailCpuSpec(cpuInfo: string[]) {
+	const physicalCore = cpuInfo
+		.map((info) => info.match(/\b(\d+)\s*physical\s+cores?\b/i))
+		.find((match) => match);
+	const virtualCore = cpuInfo
+		.map((info) => info.match(/\b(\d+)\s*virtual\s+cores?\b/i))
+		.find((match) => match);
+
+	if (physicalCore?.[1]) return `${physicalCore[1]} Physical Core`;
+	if (virtualCore?.[1]) return `${virtualCore[1]} Virtual Core`;
+
+	return `${getCpuCoreCount(cpuInfo)} vCPU`;
+}
+
 function formatCpuDetail(cpuInfo: string[]) {
 	return summarizeHardwareItems(
 		cpuInfo.map((info) =>
 			info
 				.trim()
+				.replace(/\b\d+\s*(?:physical|virtual)\s+cores?\b/gi, "")
 				.replace(
 					/^\d+\s*(?:v\s*cpus?|cores?|threads?|processors?|logical processors?|virtual cores?)\b\s*/i,
 					"",
 				)
+				.replace(/\s{2,}/g, " ")
 				.trim(),
 		),
 	).join(", ");
@@ -257,7 +273,7 @@ export default function ServerDetailOverview({
 			? formatBytes((net_out_transfer || 0) + (net_in_transfer || 0))
 			: t("serverDetail.unknown");
 	const uptimeCompact = compactUptime(uptime);
-	const cpuCount = getCpuCoreCount(cpu_info);
+	const cpuSpec = getDetailCpuSpec(cpu_info);
 	const cpuModel = formatCpuDetail(cpu_info);
 	const gpuSpecs = summarizeHardwareItems(server.host.gpu || [], false);
 	const osName = normalizeOs(platform, platform_version);
@@ -316,11 +332,11 @@ export default function ServerDetailOverview({
 
 				<DashboardCard title="Hardware">
 					<div className="mt-3 divide-y divide-border/70">
-						<HardwareSpecRow
-							label="CPU"
-							value={`${cpuCount} vCPU`}
-							detail={cpuModel || "N/A"}
-						/>
+							<HardwareSpecRow
+								label="CPU"
+								value={cpuSpec}
+								detail={cpuModel || "N/A"}
+							/>
 						<HardwareSpecRow
 							label="Memory"
 							value={mem_total ? formatBytes(mem_total) : "N/A"}

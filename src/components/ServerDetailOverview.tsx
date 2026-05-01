@@ -141,7 +141,7 @@ function formatCpuDetail(cpuInfo: string[]) {
 			info
 				.trim()
 				.replace(
-					/^\d+\s*(?:v\s*cpu|vcpus?|cpus?|cores?|threads?|processors?|logical processors?)\b\s*/i,
+					/^\d+\s*(?:v\s*cpus?|cores?|threads?|processors?|logical processors?|virtual cores?)\b\s*/i,
 					"",
 				)
 				.trim(),

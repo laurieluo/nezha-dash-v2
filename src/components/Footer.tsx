@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
 			<section className="flex flex-col">
 				<section className="mt-1 flex items-center sm:flex-row flex-col justify-between gap-2 text-[13px] font-light tracking-tight text-muted-foreground/50 server-footer-name">
 					<div className="flex items-center gap-1">
-						Laurie's Server Sashboard @{new Date().getFullYear()}
+						Laurie's Server Dashboard @{new Date().getFullYear()}
 					</div>
 					<div className="server-footer-theme flex flex-col items-center sm:items-end">
 						<p className="mt-1 text-[13px] font-light tracking-tight text-muted-foreground/50">

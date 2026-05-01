@@ -56,3 +56,9 @@ ReactDOM.createRoot(rootElement).render(
 		</ThemeProvider>
 	</MotionProvider>,
 );
+
+requestAnimationFrame(() => {
+	requestAnimationFrame(() => {
+		rootElement.classList.add("loaded");
+	});
+});

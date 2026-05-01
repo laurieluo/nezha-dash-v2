@@ -51,6 +51,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 			clearTimeout(reconnectTimeout.current);
 			reconnectTimeout.current = null;
 		}
+		isConnecting.current = false;
 		setConnected(false);
 	}, []);
 
@@ -147,7 +148,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 		};
 
 		const handlePageShow = (event: PageTransitionEvent) => {
-			if (event.persisted || ws.current?.readyState !== WebSocket.OPEN) {
+			if (
+				event.persisted ||
+				!ws.current ||
+				ws.current.readyState === WebSocket.CLOSED ||
+				ws.current.readyState === WebSocket.CLOSING
+			) {
 				reconnect();
 			}
 		};
@@ -155,7 +161,9 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 		const handleVisibilityChange = () => {
 			if (
 				document.visibilityState === "visible" &&
-				ws.current?.readyState !== WebSocket.OPEN
+				(!ws.current ||
+					ws.current.readyState === WebSocket.CLOSED ||
+					ws.current.readyState === WebSocket.CLOSING)
 			) {
 				reconnect();
 			}

@@ -56,9 +56,9 @@ export function getCpuCoreCount(cpuInfo?: string[] | null): number {
 	if (!cpuInfo?.length) return 1;
 
 	const cpuCountPatterns = [
-		/^\s*(\d+)\s*(?:v\s*cpu|vcpus?|cpus?|cores?|threads?|processors?|logical processors?)\b/i,
-		/\b(?:v\s*cpu|vcpus?|cpus?|cores?|threads?|logical processors?)\s*[:=x-]?\s*(\d+)\b/i,
-		/\b(\d+)\s*(?:v\s*cpu|vcpus?|cpus?|cores?|threads?|logical processors?)\b/i,
+		/^\s*(\d+)\s*(?:v\s*cpus?|cores?|threads?|processors?|logical processors?|virtual cores?)\b/i,
+		/\b(?:v\s*cpus?|cores?|threads?|logical processors?|virtual cores?)\s*[:=x-]?\s*(\d+)\b/i,
+		/\b(\d+)\s*(?:v\s*cpus?|cores?|threads?|logical processors?|virtual cores?)\b/i,
 	];
 
 	for (const info of cpuInfo) {

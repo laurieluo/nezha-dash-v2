@@ -10,7 +10,7 @@ import ServerFlag from "@/components/ServerFlag";
 import { Card } from "@/components/ui/card";
 import { useWebSocketContext } from "@/hooks/use-websocket-context";
 import { formatBytes } from "@/lib/format";
-import { cn, formatNezhaInfo } from "@/lib/utils";
+import { cn, formatNezhaInfo, getCpuCoreCount } from "@/lib/utils";
 import type { NezhaWebsocketResponse } from "@/types/nezha-api";
 
 import {
@@ -93,17 +93,60 @@ function HeroMetric({
 	);
 }
 
-function MetricPill({ value, label }: { value: string; label: string }) {
+function HardwareSpecRow({
+	label,
+	value,
+	detail,
+}: {
+	label: string;
+	value: React.ReactNode;
+	detail?: React.ReactNode;
+}) {
 	return (
-		<div className="min-w-0 rounded-lg bg-secondary/45 px-3 py-2 shadow-[0_0_0_1px_hsl(var(--border))]">
-			<p className="whitespace-nowrap text-base font-semibold leading-tight tabular-nums text-foreground">
-				{value}
-			</p>
-			<p className="mt-1 text-[11px] font-medium uppercase leading-tight tracking-wide text-muted-foreground">
+		<div className="min-w-0 py-2">
+			<p className="text-[11px] font-medium uppercase leading-snug tracking-wide text-muted-foreground">
 				{label}
 			</p>
+			<div className="mt-0.5 min-w-0">
+				<p className="break-words text-[13px] font-semibold leading-snug text-foreground">
+					{value}
+				</p>
+				{detail && (
+					<p className="mt-0.5 break-words text-[11px] leading-snug text-muted-foreground">
+						{detail}
+					</p>
+				)}
+			</div>
 		</div>
 	);
+}
+
+function summarizeHardwareItems(items: string[], showCount = true) {
+	const counts = new Map<string, number>();
+
+	for (const item of items) {
+		const name = item.trim();
+		if (!name) continue;
+		counts.set(name, (counts.get(name) || 0) + 1);
+	}
+
+	return Array.from(counts, ([name, count]) =>
+		showCount && count > 1 ? `${count} x ${name}` : name,
+	);
+}
+
+function formatCpuDetail(cpuInfo: string[]) {
+	return summarizeHardwareItems(
+		cpuInfo.map((info) =>
+			info
+				.trim()
+				.replace(
+					/^\d+\s*(?:v\s*cpu|vcpus?|cpus?|cores?|threads?|processors?|logical processors?)\b\s*/i,
+					"",
+				)
+				.trim(),
+		),
+	).join(", ");
 }
 
 function compactUptime(uptime: number) {
@@ -192,9 +235,6 @@ export default function ServerDetailOverview({
 		platform,
 		platform_version,
 		cpu_info,
-		load_1,
-		load_5,
-		load_15,
 		net_out_transfer,
 		net_in_transfer,
 		last_active_time_string,
@@ -211,14 +251,15 @@ export default function ServerDetailOverview({
 	const regionName = country_code
 		? countries.getName(country_code.toUpperCase(), "en")
 		: undefined;
-	const primaryTemperature = server.state.temperatures?.[0]?.Temperature;
+	const regionDisplayName = regionName || country_code?.toUpperCase() || "N/A";
 	const totalTraffic =
 		net_out_transfer || net_in_transfer
 			? formatBytes((net_out_transfer || 0) + (net_in_transfer || 0))
 			: t("serverDetail.unknown");
 	const uptimeCompact = compactUptime(uptime);
-	const cpuCount = server.host.cpu?.length || cpu_info.length || 1;
-	const cpuModel = cpu_info.join(", ");
+	const cpuCount = getCpuCoreCount(cpu_info);
+	const cpuModel = formatCpuDetail(cpu_info);
+	const gpuSpecs = summarizeHardwareItems(server.host.gpu || [], false);
 	const osName = normalizeOs(platform, platform_version);
 	const shortLastActive = formatShortDate(last_active_time_string);
 	const shortBootTime = formatShortDate(boot_time_string);
@@ -273,42 +314,27 @@ export default function ServerDetailOverview({
 					</div>
 				</DashboardCard>
 
-				<DashboardCard title="Resource Usage">
-					<div className="mt-4">
-						<p className="text-[11px] font-medium uppercase leading-tight tracking-wide text-muted-foreground">
-							Load average
-						</p>
-						<div className="mt-2 grid grid-cols-3 gap-2">
-							<MetricPill value={String(load_1)} label="1m" />
-							<MetricPill value={String(load_5)} label="5m" />
-							<MetricPill value={String(load_15)} label="15m" />
-						</div>
-					</div>
-					<HeroMetric
-						label="CPU temperature"
-						value={
-							primaryTemperature !== undefined
-								? `${primaryTemperature.toFixed(1)} °C`
-								: "N/A"
-						}
-						className="mt-5"
-					/>
-					<div className="mt-3 border-t border-border/70 pt-3">
-						<div className="flex flex-wrap gap-2">
-							<span className="rounded-md bg-secondary/45 px-2.5 py-1 text-xs font-medium text-foreground">
-								{cpuCount} vCPU
-							</span>
-							<span className="rounded-md bg-secondary/45 px-2.5 py-1 text-xs font-medium text-foreground">
-								{mem_total ? formatBytes(mem_total) : "N/A"} RAM
-							</span>
-							<span className="rounded-md bg-secondary/45 px-2.5 py-1 text-xs font-medium text-foreground">
-								{disk_total ? formatBytes(disk_total) : "N/A"} Disk
-							</span>
-						</div>
-						{cpuModel && (
-							<p className="mt-1 truncate text-xs text-muted-foreground" title={cpuModel}>
-								{cpuModel}
-							</p>
+				<DashboardCard title="Hardware">
+					<div className="mt-3 divide-y divide-border/70">
+						<HardwareSpecRow
+							label="CPU"
+							value={`${cpuCount} vCPU`}
+							detail={cpuModel || "N/A"}
+						/>
+						<HardwareSpecRow
+							label="Memory"
+							value={mem_total ? formatBytes(mem_total) : "N/A"}
+						/>
+						<HardwareSpecRow
+							label="Disk"
+							value={disk_total ? formatBytes(disk_total) : "N/A"}
+						/>
+						{gpuSpecs.length > 0 && (
+							<HardwareSpecRow
+								label="GPU"
+								value={`${server.host.gpu.length} GPU`}
+								detail={gpuSpecs.join(", ")}
+							/>
 						)}
 					</div>
 				</DashboardCard>
@@ -348,7 +374,9 @@ export default function ServerDetailOverview({
 										value={
 											country_code ? (
 												<span className="inline-flex max-w-full items-center gap-2">
-													<span className="truncate">{country_code.toUpperCase()}</span>
+													<span className="truncate">
+														{regionDisplayName}
+													</span>
 													<ServerFlag country_code={country_code} />
 												</span>
 											) : (
@@ -359,7 +387,7 @@ export default function ServerDetailOverview({
 								</div>
 							</TooltipTrigger>
 							<TooltipContent>
-								<p>{regionName || "N/A"}</p>
+								<p>{regionDisplayName}</p>
 							</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
@@ -370,7 +398,10 @@ export default function ServerDetailOverview({
 						<p className="text-[11px] font-medium uppercase leading-tight tracking-wide text-muted-foreground">
 							OS
 						</p>
-						<p className="mt-1 text-lg font-semibold leading-tight text-foreground" title={osName}>
+						<p
+							className="mt-1 text-lg font-semibold leading-tight text-foreground"
+							title={osName}
+						>
 							{osName}
 						</p>
 					</div>
@@ -379,7 +410,9 @@ export default function ServerDetailOverview({
 						<MetadataItem
 							label="Boot time"
 							value={
-								<span title={boot_time_string || undefined}>{shortBootTime}</span>
+								<span title={boot_time_string || undefined}>
+									{shortBootTime}
+								</span>
 							}
 							valueClassName="whitespace-nowrap"
 						/>

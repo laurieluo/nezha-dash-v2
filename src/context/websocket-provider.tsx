@@ -129,14 +129,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 		}
 	}, [cleanup, url]);
 
-	const reconnect = () => {
+	const reconnect = useCallback(() => {
 		reconnectAttempts.current = 0;
 		// 等待一个小延时确保清理完成
 		cleanup();
 		setTimeout(() => {
 			connect();
 		}, 1000);
-	};
+	}, [cleanup, connect]);
 
 	useEffect(() => {
 		connect();
@@ -146,13 +146,32 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 			cleanup();
 		};
 
+		const handlePageShow = (event: PageTransitionEvent) => {
+			if (event.persisted || ws.current?.readyState !== WebSocket.OPEN) {
+				reconnect();
+			}
+		};
+
+		const handleVisibilityChange = () => {
+			if (
+				document.visibilityState === "visible" &&
+				ws.current?.readyState !== WebSocket.OPEN
+			) {
+				reconnect();
+			}
+		};
+
 		window.addEventListener("beforeunload", handleBeforeUnload);
+		window.addEventListener("pageshow", handlePageShow);
+		document.addEventListener("visibilitychange", handleVisibilityChange);
 
 		return () => {
 			cleanup();
 			window.removeEventListener("beforeunload", handleBeforeUnload);
+			window.removeEventListener("pageshow", handlePageShow);
+			document.removeEventListener("visibilitychange", handleVisibilityChange);
 		};
-	}, [cleanup, connect]);
+	}, [cleanup, connect, reconnect]);
 
 	const contextValue: WebSocketContextType = {
 		lastMessage,

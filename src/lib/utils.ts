@@ -52,6 +52,28 @@ export function formatNezhaInfo(now: number, serverInfo: NezhaServer) {
 	};
 }
 
+export function getCpuCoreCount(cpuInfo?: string[] | null): number {
+	if (!cpuInfo?.length) return 1;
+
+	const cpuCountPatterns = [
+		/^\s*(\d+)\s*(?:v\s*cpu|vcpus?|cpus?|cores?|threads?|processors?|logical processors?)\b/i,
+		/\b(?:v\s*cpu|vcpus?|cpus?|cores?|threads?|logical processors?)\s*[:=x-]?\s*(\d+)\b/i,
+		/\b(\d+)\s*(?:v\s*cpu|vcpus?|cpus?|cores?|threads?|logical processors?)\b/i,
+	];
+
+	for (const info of cpuInfo) {
+		for (const pattern of cpuCountPatterns) {
+			const match = info.match(pattern);
+			const count = Number(match?.[1]);
+			if (Number.isInteger(count) && count > 0) {
+				return count;
+			}
+		}
+	}
+
+	return cpuInfo.length;
+}
+
 export function getDaysBetweenDatesWithAutoRenewal({
 	autoRenewal,
 	cycle,

@@ -81,6 +81,8 @@ export default function Servers() {
 	const { data: groupData } = useQuery({
 		queryKey: ["server-group"],
 		queryFn: () => fetchServerGroup(),
+		refetchOnMount: true,
+		refetchOnWindowFocus: true,
 	});
 	const { data: serviceData } = useQuery({
 		queryKey: ["service"],

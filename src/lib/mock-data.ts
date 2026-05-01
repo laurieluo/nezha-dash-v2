@@ -35,6 +35,14 @@ export function isMockMode() {
 const gib = 1024 ** 3;
 const mib = 1024 ** 2;
 
+type MockServerOptions = {
+	memTotal?: number;
+	diskTotal?: number;
+	cpuInfo?: string[];
+	gpuInfo?: string[];
+	gpuState?: number[];
+};
+
 const publicNote = JSON.stringify({
 	billingDataMod: {
 		startDate: "2026-04-01",
@@ -71,12 +79,16 @@ function makeServer(
 	platform: string,
 	seed: number,
 	offline = false,
+	options: MockServerOptions = {},
 ): NezhaServer {
-	const memTotal = (8 + id * 8) * gib;
-	const diskTotal = (80 + id * 120) * gib;
+	const memTotal = options.memTotal ?? (8 + id * 8) * gib;
+	const diskTotal = options.diskTotal ?? (80 + id * 120) * gib;
 	const cpu = wave(seed, 8, id === 3 ? 92 : 58);
 	const memUsed = memTotal * (wave(seed + 1, 20, 76) / 100);
 	const diskUsed = diskTotal * (wave(seed + 2, 24, 88) / 100);
+	const gpuInfo = options.gpuInfo ?? (id === 3 ? ["NVIDIA L4"] : []);
+	const gpuState =
+		options.gpuState ?? (id === 3 && !offline ? [wave(seed + 15, 12, 68)] : []);
 
 	return {
 		id,
@@ -92,8 +104,8 @@ function makeServer(
 					: platform === "windows"
 						? "Server 2022"
 						: "24.04 LTS",
-			cpu: [`${id + 2} vCPU Mock Processor`],
-			gpu: id === 3 ? ["NVIDIA L4"] : [],
+			cpu: options.cpuInfo ?? [`${id + 2} vCPU Mock Processor`],
+			gpu: gpuInfo,
 			mem_total: memTotal,
 			disk_total: diskTotal,
 			swap_total: 2 * gib,
@@ -122,7 +134,7 @@ function makeServer(
 			temperatures: [
 				{ Name: "CPU", Temperature: offline ? 0 : wave(seed + 14, 38, 76) },
 			],
-			gpu: id === 3 && !offline ? [wave(seed + 15, 12, 68)] : [],
+			gpu: offline ? [] : gpuState,
 		},
 	};
 }
@@ -136,6 +148,13 @@ export function getMockWebsocketData(): NezhaWebsocketResponse & {
 		makeServer(3, "Frankfurt GPU", "DE", "linux", 3),
 		makeServer(4, "Singapore Backup", "SG", "darwin", 4),
 		makeServer(5, "Offline Archive", "GB", "windows", 5, true),
+		makeServer(6, "Seoul Render Node", "KR", "linux", 6, false, {
+			cpuInfo: ["32 vCPU AMD Ryzen Threadripper PRO Mock Workstation"],
+			gpuInfo: ["NVIDIA GeForce RTX 5090 32GB", "NVIDIA GeForce RTX 5090 32GB"],
+			gpuState: [wave(21, 18, 74), wave(22, 14, 69)],
+			memTotal: 256 * gib,
+			diskTotal: 4 * 1024 * gib,
+		}),
 	];
 
 	return {
@@ -176,7 +195,7 @@ export function getMockServerGroup(): ServerGroupResponse {
 					updated_at: isoNow(),
 					name: "Production",
 				},
-				servers: [1, 2, 3],
+				servers: [1, 2, 3, 6],
 			},
 			{
 				group: {

@@ -18,6 +18,7 @@ import { GetOsName } from "@/lib/logo-class";
 import {
 	cn,
 	formatNezhaInfo,
+	getCpuCoreCount,
 	getDaysBetweenDatesWithAutoRenewal,
 	parsePublicNote,
 } from "@/lib/utils";
@@ -110,9 +111,7 @@ function MetricBlock({
 				)}
 			</div>
 			{detail && (
-				<p
-					className={cn("mt-1 truncate", metricDetailClass, detailClassName)}
-				>
+				<p className={cn("mt-1 truncate", metricDetailClass, detailClassName)}>
 					{detail}
 				</p>
 			)}
@@ -172,7 +171,7 @@ export default function ServerCard({
 			? window.CustomBackgroundImage
 			: undefined;
 
-	const cpuCount = serverInfo.host.cpu?.length || 1;
+	const cpuCount = getCpuCoreCount(serverInfo.host.cpu);
 	const loadValue = Math.min(
 		100,
 		(Number(load_1) / Math.max(cpuCount, 1)) * 100,
@@ -344,12 +343,7 @@ export default function ServerCard({
 								</p>
 							</div>
 							<div className="text-right">
-								<p
-									className={cn(
-										"text-muted-foreground",
-										metricLabelClass,
-									)}
-								>
+								<p className={cn("text-muted-foreground", metricLabelClass)}>
 									{cycleProgress.toFixed(1)}%
 								</p>
 								<p className="text-xs leading-tight text-muted-foreground tabular-nums">

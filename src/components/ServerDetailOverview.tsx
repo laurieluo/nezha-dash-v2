@@ -332,11 +332,11 @@ export default function ServerDetailOverview({
 
 				<DashboardCard title="Hardware">
 					<div className="mt-3 divide-y divide-border/70">
-							<HardwareSpecRow
-								label="CPU"
-								value={cpuSpec}
-								detail={cpuModel || "N/A"}
-							/>
+						<HardwareSpecRow
+							label="CPU"
+							value={cpuSpec}
+							detail={cpuModel || "N/A"}
+						/>
 						<HardwareSpecRow
 							label="Memory"
 							value={mem_total ? formatBytes(mem_total) : "N/A"}
@@ -390,9 +390,7 @@ export default function ServerDetailOverview({
 										value={
 											country_code ? (
 												<span className="inline-flex max-w-full items-center gap-2">
-													<span className="truncate">
-														{regionDisplayName}
-													</span>
+													<span className="truncate">{regionDisplayName}</span>
 													<ServerFlag country_code={country_code} />
 												</span>
 											) : (
